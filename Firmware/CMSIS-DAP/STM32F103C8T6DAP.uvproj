@@ -4742,7 +4742,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER STM32F10X_MD STLINK_V2B SWO_PA10</Define>
               <Undefine></Undefine>
-              <IncludePath>.\CMSIS-DAP;.\USB;.\User;.\Driver\STM32F10x_ARM_Driver;.\Driver\STM32F10x_StdPeriph_Driver\inc;C:\Keil\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\Include;C:\Keil\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\Driver\Include</IncludePath>
+              <IncludePath>.\CMSIS-DAP;.\USB;.\User;.\Driver\STM32F10x_ARM_Driver;.\Driver\STM32F10x_StdPeriph_Driver\inc;.\Libraries\CMSIS\Include;.\Libraries\CMSIS\Driver\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
