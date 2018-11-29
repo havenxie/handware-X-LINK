@@ -333,8 +333,8 @@ typedef enum Pin_e {
 #define PIN_SWCLK_TCK_PIN   13
 
 // TDO/SWO Pin (input)
-#define PIN_TDO_PORT        GPIOB
-#define PIN_TDO_PIN         7
+#define PIN_TDO_PORT        GPIOA
+#define PIN_TDO_PIN         10
 
 // nRESET Pin
 #define PIN_nRESET_PORT     GPIOB
