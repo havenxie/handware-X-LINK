@@ -376,11 +376,11 @@ typedef enum Pin_e {
 
 // TDI Pin (output), STLINK_V2B use only
 #define PIN_TDI_PORT        GPIOB
-#define PIN_TDI_PIN         8
+#define PIN_TDI_PIN         15
 
 // nRESET Pin
 #define PIN_nRESET_PORT     GPIOB
-#define PIN_nRESET_PIN      6
+#define PIN_nRESET_PIN      0
 
 #endif
 

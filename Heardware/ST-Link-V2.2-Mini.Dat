@@ -1,0 +1,15 @@
+Field=Comment~String~Comment~100|Field=Description~String~Description~100|Field=Designator~String~Designator~100|Field=Footprint~String~Footprint~100|Field=LibRef~String~LibRef~100|Field=Quantity~Integer~Quantity~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~ST-Link-V2.2-Mini.PrjPcb|ReportField=ProjectFullPath~G:\STLink\4.ST-Link V2.2\Heardware\ST-Link-V2.2-Mini.PrjPcb|ReportField=Title~Bill of Materials For Project [ST-Link-V2.2-Mini.PrjPcb] (No PCB Document Selected)|ReportField=TotalQuantity~42|ReportField=ReportTime~22:59:38|ReportField=ReportDate~2018/12/4|ReportField=ReportDateTime~2018/12/4 22:59:38|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=Application_BuildNumber~|ReportField=ApprovedBy~|ReportField=Author~|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=CurrentDate~2018/12/4|ReportField=CurrentTime~22:59:25|ReportField=Date~|ReportField=DocumentFullPathAndName~G:\STLink\4.ST-Link V2.2\Heardware\ST-Link-V2.2-Mini.SchDoc|ReportField=DocumentName~ST-Link-V2.2-Mini.SchDoc|ReportField=DocumentNumber~|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=ModifiedDate~2018/11/27|ReportField=Organization~|ReportField=ProjectName~ST-Link-V2.2-Mini.PrjPcb|ReportField=Revision~|ReportField=Rule~|ReportField=SheetNumber~|ReportField=SheetTotal~|ReportField=Time~|ReportField=Title~|ReportField=DataSourceFileName~ST-Link-V2.2-Mini.PrjPcb|ReportField=DataSourceFullPath~G:\STLink\4.ST-Link V2.2\Heardware\ST-Link-V2.2-Mini.PrjPcb
+Cap|Capacitor|C1, C2, C3, C4, C5, C6, C7, C8|C-0603|Cap|8
+LED_G|Typical RED, GREEN, YELLOW, AMBER GaAs LED|D1|SMT_LED_0603|LED2|1
+LED_R|Typical RED, GREEN, YELLOW, AMBER GaAs LED|D2|SMT_LED_0603|LED2|1
+Fuse1|保险丝|F1|0805-1|Fuse1|1
+USB|USB接口|J1|USB-B|USB|1
+SWD|Header, 4-Pin|P1|SIP4-1.27|Header 4|1
+P-BOTTOM|Header, 5-Pin|P2|HEADER_5|Header 5|1
+P-TOP|Header, 5-Pin|P3|HEADER_5|Header 5|1
+NPN|贴片三极管|Q1|SOT23-3|NPN1|1
+Res1|贴片电阻|R1, R3, R4, R6, R13, R14, R23|0603-1|Res1|7
+Res2|Resistor|R2, R5, R7, R8, R9, R10, R11, R12, R15, R16, R17, R18, R19, R20, R21, R22|0603-1|Res2|16
+SPX3819||U1|SOT23-5|SPX3819|1
+STM32F103CBT6|STM32 ARM-based 32-bit MCU with 64 Kbytes Flash, 48-pin LQFP, Industrial Temperature|U2|LQFP48_N|STM32F103C8T6|1
+8M|Crystal Oscillator|Y1|XAL5032 2-Leads|XTAL|1
