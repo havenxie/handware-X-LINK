@@ -1,7 +1,8 @@
 //=====================================
-//CMSIS-DAP v2.0 for Bluepill board
+//CMSIS-DAP v2.0 for ST-LinkV2.1/J-Link-OB board
 //--------based on x893 source code
 //--------2018-07-24 by RadioOperator
+//--------2018-12-08 by HavenXie
 //=====================================
 
 #include <stdio.h>
@@ -71,6 +72,11 @@ void LedRunningOff(void)      { LED_RUNNING_PORT->BRR    = LED_RUNNING_MASK;    
 void LedRunningToggle(void)   { LED_RUNNING_PORT->ODR   ^= LED_RUNNING_MASK;    }
 
 #endif //#if defined ( BLUEPILL )
+
+void usb_hdreset(void) 
+{
+    PORT_USB_CONNECT_SETUP();
+}
 
 const GPIO_InitTypeDef INIT_LED_CONNECTED = {
   LED_CONNECTED_MASK,
@@ -195,6 +201,7 @@ UserAppDescriptor_t UserAppDescriptor = {
 //=============================================================================
 int main(void)
 {
+  NVIC_SetVectorTable(0x8004000, 0x4000);//set interrupt table
   SystemCoreClockUpdate();
   BoardInit();  
   SysTick_Init(); //for LED flash
@@ -207,9 +214,13 @@ int main(void)
   }
   Delayms(10);
 
-  // USB Device Initialization and connect
+  //USB Device Initialization and connect
+  usb_hdreset();
   usbd_init();
   usbd_connect(__TRUE);
+  
+//  USBD_Init();
+//  USBD_Connect(__TRUE);
   
   while (!usbd_configured())  // Wait for USB Device to configure
   {
@@ -430,10 +441,10 @@ void PORT_OFF()
 const GPIO_InitTypeDef INIT_PINS_A = {
   ( GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |
   GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 |
-  GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 |
+  GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 
   //    GPIO_Pin_11 | GPIO_Pin_12 |   // USB pins
   //    GPIO_Pin_13 | GPIO_Pin_14 |   // SWD pins
-  GPIO_Pin_15
+  //GPIO_Pin_15
   ),
   (GPIOSpeed_TypeDef)0,
   GPIO_Mode_AIN
