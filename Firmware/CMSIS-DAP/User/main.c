@@ -230,6 +230,7 @@ int main(void)
   LED_FLASH_ON();
   
   Delayms(100);       // Wait for 100ms
+//  NVIC_SystemReset();
   
 #if (USBD_CDC_ACM_ENABLE == 1)
   USBD_CDC_ACM_PortInitialize(); //initial CDC UART port
