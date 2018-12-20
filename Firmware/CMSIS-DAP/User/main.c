@@ -201,7 +201,7 @@ UserAppDescriptor_t UserAppDescriptor = {
 //=============================================================================
 int main(void)
 {
-  NVIC_SetVectorTable(0x8004000, 0x4000);//set interrupt table
+  NVIC_SetVectorTable(FLASH_BASE, 0x4000);//set interrupt table
   SystemCoreClockUpdate();
   BoardInit();  
   SysTick_Init(); //for LED flash
