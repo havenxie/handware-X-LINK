@@ -17,6 +17,13 @@
 #include "DAP_config.h"
 #include "DAP.h"
 
+#define USE_BOOTLOADER
+#ifdef USE_BOOTLOADER
+  #define APP_BASE 0x4000
+#elif
+  #define APP_BASE 0x0
+#endif
+
 #if defined ( BLUEPILL )
 #if defined ( SWD_REMAP )
 #warning "BLUEPILL board: using Remapped SWD/SWC port, TDO-PB7, nRESET-PB6, TDI-PB5"
@@ -46,7 +53,7 @@ extern void CDC_ACM_UART_to_USB(void);
 #endif
 
 uint8_t u8SysTick_Counter = 3;
-uint8_t u8LedMode = 0;
+uint8_t u8LedMode = 4;
 
 #define LED_FLASH_ON()    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk  //turn-on SysTick, LED in flashing mode.
 #define LED_FLASH_OFF()   SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk //turn-off SysTick
@@ -133,6 +140,7 @@ void LedRunningOut(uint16_t bit)
 
 void SysTick_Init(void)
 {
+  //cale = 1800000 * (1/9000000) = 0.2S
   SysTick_Config(1800000); // =200ms, 1800000 ticks
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8); //Freq = 72/8 = 9MHz
   
@@ -142,7 +150,15 @@ void SysTick_Init(void)
 void SysTick_Handler(void)
 {
   u8SysTick_Counter--;
-
+//  if(u8LedMode & 0x04)
+//  {
+//    //u8LedMode &= ~0x04;
+//    if (u8SysTick_Counter & 0x01) {
+//      LedConnectedOn();
+//    }
+//    else
+//    LedConnectedOff();
+//  }
   //Connected LED
   if (u8LedMode & 0x02)       //Connected LED: 200ms on/off for CDC, fast
   {
@@ -201,31 +217,28 @@ UserAppDescriptor_t UserAppDescriptor = {
 //=============================================================================
 int main(void)
 {
-  NVIC_SetVectorTable(FLASH_BASE, 0x4000);//set interrupt table
+  NVIC_SetVectorTable(FLASH_BASE, APP_BASE);//set NVIC_VectTab
   SystemCoreClockUpdate();
   BoardInit();  
   SysTick_Init(); //for LED flash
   
-  LedConnectedOn();
+  //LedConnectedOn();
   if (UserAppDescriptor.UserInit != NULL)
   {
     pUserAppDescriptor = &UserAppDescriptor;
     pUserAppDescriptor->UserInit((CoreDescriptor_t *)&CoreDescriptor);
   }
-  Delayms(10);
+  //Delayms(10);
 
   //USB Device Initialization and connect
   usb_hdreset();
   usbd_init();
   usbd_connect(__TRUE);
   
-//  USBD_Init();
-//  USBD_Connect(__TRUE);
-  
   while (!usbd_configured())  // Wait for USB Device to configure
   {
-    LedConnectedOff();
-    Delayms(10);
+    LedConnectedToggle();
+    Delayms(50);
   }
   LED_FLASH_ON();
   

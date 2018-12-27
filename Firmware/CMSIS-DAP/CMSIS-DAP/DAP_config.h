@@ -436,7 +436,7 @@ typedef enum Pin_e {
 #define LED_CONNECTED_PIN   9
 
 #define LED_RUNNING_PORT    GPIOA
-#define LED_RUNNING_PIN     8
+#define LED_RUNNING_PIN     9
 
 //  #define LED_CONNECTED_MASK  PIN_MASK(LED_CONNECTED_PIN)
 //  #define LED_RUNNING_MASK    PIN_MASK(LED_RUNNING_PIN)
