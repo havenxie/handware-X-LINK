@@ -17,6 +17,13 @@
 #include "DAP_config.h"
 #include "DAP.h"
 
+#define USE_BOOTLOADER
+#ifdef USE_BOOTLOADER
+  #define APP_BASE 0x4000
+#elif
+  #define APP_BASE 0x0
+#endif
+
 #if defined ( BLUEPILL )
 #if defined ( SWD_REMAP )
 #warning "BLUEPILL board: using Remapped SWD/SWC port, TDO-PB7, nRESET-PB6, TDI-PB5"
@@ -46,7 +53,7 @@ extern void CDC_ACM_UART_to_USB(void);
 #endif
 
 uint8_t u8SysTick_Counter = 3;
-uint8_t u8LedMode = 0;
+uint8_t u8LedMode = 4;
 
 #define LED_FLASH_ON()    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk  //turn-on SysTick, LED in flashing mode.
 #define LED_FLASH_OFF()   SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk //turn-off SysTick
@@ -109,66 +116,69 @@ void LEDS_SETUP (void)
 void LedConnectedOut(uint16_t bit)
 {
   LedRunningOff();
-  u8LedMode &= ~0x01;
-  
+  if(bit & 1)
+    u8LedMode |= 0x01;
+  else 
+	u8LedMode &= ~0x01;
+	
   LED_FLASH_ON();
 }
 
 void LedRunningOut(uint16_t bit)
 {
-  LedConnectedOn();
-  u8LedMode |= 0x01;
-  
-  if (bit & 1)
-  {
-    LED_FLASH_OFF();
-    LedRunningOn();
-  }
-  else
-  {
-    LED_FLASH_ON();
-    LedRunningOff();
-  }
+  LedConnectedOff();
+  if(bit & 1)
+	u8LedMode |= 0x01;
+  else 
+    u8LedMode &= ~0x01;
+	
+  LED_FLASH_ON();
 }
 
 void SysTick_Init(void)
 {
-  SysTick_Config(1800000); // =200ms, 1800000 ticks
+  //cale = 900000 * (1/9000000) = 0.1S
+  SysTick_Config(900000); // =100ms, 900000 ticks
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8); //Freq = 72/8 = 9MHz
   
-  LED_FLASH_OFF(); //turn-off SysTick
+  LED_FLASH_ON(); //turn-off SysTick
 }
 
 void SysTick_Handler(void)
 {
   u8SysTick_Counter--;
-
+  //Before connecte
+  if(u8LedMode & 0x04)    //Wait for USB Device to configure
+  {
+    if (u8SysTick_Counter & 0x01)
+      LedConnectedOn();
+    else
+      LedConnectedOff();
+  }
   //Connected LED
-  if (u8LedMode & 0x02)       //Connected LED: 200ms on/off for CDC, fast
+  else if (u8LedMode & 0x02)    //Connected LED: 100ms on / 100ms off for CDC, fast
   {
     u8LedMode &= ~0x02;
-    
-    if (u8SysTick_Counter & 0x01) {
+    if (u8SysTick_Counter & 0x01) 
       LedConnectedOn();
-    }
     else
-    LedConnectedOff();
+	  LedConnectedOff();
   }
-  else
-  {     
-    if ((u8SysTick_Counter & 0x07) == 0) //Connected LED: 200ms on, 1400ms off, slower
-    LedConnectedOn();
-    else
-    LedConnectedOff();
-  }
-  
   //Running LED
-  if (u8LedMode & 0x01)           //Running LED: 200ms on, 600ms off
+  else if (u8LedMode & 0x01)    //Running LED: 100ms on / 100ms off for debug or download, fast
   {
-    if ((u8SysTick_Counter & 0x03) == 0)
-    LedRunningOn();
+    if (u8SysTick_Counter & 0x01)
+	  LedRunningOn();
     else
-    LedRunningOff();
+	  LedRunningOff();
+  }
+  //IDLE Mode
+  else if(u8LedMode == 0)
+  {     
+    if (u8SysTick_Counter & 0x04)    //Connected LED: 400ms on / 400ms off,  for idle mode, slower
+	  LedConnectedOn();
+    else
+	  LedConnectedOff();
   }
 }
 
@@ -201,34 +211,28 @@ UserAppDescriptor_t UserAppDescriptor = {
 //=============================================================================
 int main(void)
 {
-  //NVIC_SetVectorTable(FLASH_BASE, 0x4000);//set interrupt table
+  NVIC_SetVectorTable(FLASH_BASE, APP_BASE);//set NVIC_VectTab
   SystemCoreClockUpdate();
-  BoardInit(); 
-		
-  SysTick_Init(); 
+  BoardInit();
+  SysTick_Init(); //for LED flash
   
-  //LedConnectedOn();
   if (UserAppDescriptor.UserInit != NULL)
   {
     pUserAppDescriptor = &UserAppDescriptor;
     pUserAppDescriptor->UserInit((CoreDescriptor_t *)&CoreDescriptor);
   }
-  Delayms(10);
 
   //USB Device Initialization and connect
   usb_hdreset();
   usbd_init();
   usbd_connect(__TRUE);
-
-  while (!usbd_configured())  // Wait for USB Device to configure
-  {
-    LedConnectedToggle();
-    Delayms(50);
-  }
   
-  LED_FLASH_ON();
+  while (!usbd_configured());  // Wait for USB Device to configure
+  LedConnectedOff();
+  u8LedMode = 0;
   
   Delayms(100);       // Wait for 100ms
+//  NVIC_SystemReset();
   
 #if (USBD_CDC_ACM_ENABLE == 1)
   USBD_CDC_ACM_PortInitialize(); //initial CDC UART port
