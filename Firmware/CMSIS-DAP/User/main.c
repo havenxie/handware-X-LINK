@@ -201,12 +201,13 @@ UserAppDescriptor_t UserAppDescriptor = {
 //=============================================================================
 int main(void)
 {
-  NVIC_SetVectorTable(FLASH_BASE, 0x4000);//set interrupt table
+  //NVIC_SetVectorTable(FLASH_BASE, 0x4000);//set interrupt table
   SystemCoreClockUpdate();
-  BoardInit();  
-  SysTick_Init(); //for LED flash
+  BoardInit(); 
+		
+  SysTick_Init(); 
   
-  LedConnectedOn();
+  //LedConnectedOn();
   if (UserAppDescriptor.UserInit != NULL)
   {
     pUserAppDescriptor = &UserAppDescriptor;
@@ -218,19 +219,16 @@ int main(void)
   usb_hdreset();
   usbd_init();
   usbd_connect(__TRUE);
-  
-//  USBD_Init();
-//  USBD_Connect(__TRUE);
-  
+
   while (!usbd_configured())  // Wait for USB Device to configure
   {
-    LedConnectedOff();
-    Delayms(10);
+    LedConnectedToggle();
+    Delayms(50);
   }
+  
   LED_FLASH_ON();
   
   Delayms(100);       // Wait for 100ms
-//  NVIC_SystemReset();
   
 #if (USBD_CDC_ACM_ENABLE == 1)
   USBD_CDC_ACM_PortInitialize(); //initial CDC UART port
