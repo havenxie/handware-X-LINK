@@ -156,7 +156,7 @@ void LedSwitchPWMMode(GPIO_TypeDef* GPIOx, uint16_t PINx, BOOL FLAG)
     else
     {
         GPIOx->CRL &= ~(0x0C << (4*pinpos));
-        if(FLAG == __FALSE) GPIOx->CRL |= (0x0C << (4*pinpos));  
+        if(FLAG == __TRUE) GPIOx->CRL |= (0x0C << (4*pinpos));  
     }
     GPIOx->BRR = PINx; 
 } 
