@@ -18,7 +18,7 @@
 #include "DAP.h"
 
 #define USE_PWM_LED        0
-#define USE_BOOTLOADER     0
+#define USE_BOOTLOADER     1
 
 #if (USE_BOOTLOADER == 1)
   #define APP_BASE 0x4000
@@ -26,18 +26,7 @@
   #define APP_BASE 0x0
 #endif
 
-#if defined ( BLUEPILL )
-#if defined ( SWD_REMAP )
-#warning "BLUEPILL board: using Remapped SWD/SWC port, TDO-PB7, nRESET-PB6, TDI-PB5"
-#else
-#warning "BLUEPILL board: using SWD/TMS-PB9, SWC/TCK-PB8, TDO-PB7, nRESET-PB6, TDI-PB5"
-#endif
-#endif
-
-#if  defined ( BOARD_STM32RF ) \
-  || defined ( STLINK_V20 )    \
-  || defined ( STLINK_V21 )    \
-  || defined ( STLINK_V2A )
+#if  defined ( STLINK_V21 )    
 #warning "SWD mode only, JTAG mode disabled."
 #else
 #warning "SWD mode + JTAG mode"
@@ -60,18 +49,6 @@ uint8_t u8LedMode = 4;
 #define LED_FLASH_ON()    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk  //turn-on SysTick, LED in flashing mode.
 #define LED_FLASH_OFF()   SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk //turn-off SysTick
 
-#if defined ( BLUEPILL ) //Bluepill Board
-
-void LedConnectedOn(void)     { LED_CONNECTED_PORT->BRR  = LED_CONNECTED_MASK;  } //Low active
-void LedConnectedOff(void)    { LED_CONNECTED_PORT->BSRR = LED_CONNECTED_MASK;  }
-void LedConnectedToggle(void) { LED_CONNECTED_PORT->ODR ^= LED_CONNECTED_MASK;  }
-
-void LedRunningOn(void)       { LED_RUNNING_PORT->BRR    = LED_RUNNING_MASK;    } //Low active
-void LedRunningOff(void)      { LED_RUNNING_PORT->BSRR   = LED_RUNNING_MASK;    }
-void LedRunningToggle(void)   { LED_RUNNING_PORT->ODR   ^= LED_RUNNING_MASK;    }
-
-#else //all other Board
-
 void LedConnectedOn(void)     { LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN;  } //High active
 void LedConnectedOff(void)    { LED_CONNECTED_PORT->BRR  = LED_CONNECTED_PIN;  }
 void LedConnectedToggle(void) { LED_CONNECTED_PORT->ODR ^= LED_CONNECTED_PIN;  }
@@ -80,11 +57,22 @@ void LedRunningOn(void)       { LED_RUNNING_PORT->BSRR   = LED_RUNNING_PIN;    }
 void LedRunningOff(void)      { LED_RUNNING_PORT->BRR    = LED_RUNNING_PIN;    }
 void LedRunningToggle(void)   { LED_RUNNING_PORT->ODR   ^= LED_RUNNING_PIN;    }
 
-#endif //#if defined ( BLUEPILL )
 
 void usb_hdreset(void) 
 {
-    PORT_USB_CONNECT_SETUP();
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE);
+	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_ResetBits(GPIOA, GPIO_Pin_15);
+
+    Delayms(20);
+    
+    GPIO_SetBits(GPIOA, GPIO_Pin_15);   
 }
 
 void LEDS_Init(void)
@@ -354,13 +342,13 @@ int main(void)
         pUserAppDescriptor->UserInit((CoreDescriptor_t *)&CoreDescriptor);
     }
     //USB Device Initialization and connect
-    usb_hdreset();
+    //usb_hdreset();
     usbd_init();
     usbd_connect(__TRUE);
 
     while (!usbd_configured());  // Wait for USB Device to configure
     Delayms(100);                // Wait for 100ms
-
+   
     LedConnectedOff();
     u8LedMode = 0;
 

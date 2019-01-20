@@ -49,13 +49,7 @@ typedef const struct
   void    (* UserAbort) (void);
 } UserAppDescriptor_t;
 
-#if  !defined ( BLUEPILL      )  \
-  && !defined ( BOARD_V1      ) \
-  && !defined ( BOARD_V2      ) \
-  && !defined ( STLINK_V20    ) \
-  && !defined ( STLINK_V21    ) \
-  && !defined ( BOARD_STM32RF ) \
-  && !defined ( STLINK_V2A    ) \
+#if  !defined ( STLINK_V21    ) \
   && !defined ( STLINK_V2B    )
 #error "Board undefined"
 #endif
@@ -92,10 +86,7 @@ Provides definitions about:
 
 /// Indicate that JTAG communication mode is available at the Debug Port.
 /// This information is returned by the command \ref DAP_Info as part of <b>Capabilities</b>.
-#if  defined ( BOARD_STM32RF ) \
-  || defined ( STLINK_V20 )    \
-  || defined ( STLINK_V21 )    \
-  || defined ( STLINK_V2A )
+#if  defined ( STLINK_V21 ) 
 #define DAP_JTAG                0       ///< JTAG Mode: 0 = not available, no JTAG pins.
 #else
 #define DAP_JTAG                1       ///< JTAG Mode: 1 = available, 0 = not available.
@@ -187,26 +178,7 @@ typedef enum Pin_e {
 
 // USB Connect Pull-Up
 
-#if   defined ( BLUEPILL ) \
-  ||  defined ( BOARD_V1 ) \
-  ||  defined ( BOARD_V2 )
-
-#define PIN_USB_CONNECT_RCC   RCC_APB2ENR_IOPAEN
-#define PIN_USB_CONNECT_PORT  GPIOA
-#define PIN_USB_CONNECT_PIN   8
-#define PIN_USB_CONNECT_MASK  PIN_MASK(PIN_USB_CONNECT_PIN)
-#define PIN_USB_MODE          GPIO_Mode_Out_PP
-#define PIN_USB_CONNECT_ON()  PIN_USB_CONNECT_PORT->BSRR = PIN_USB_CONNECT_MASK
-#define PIN_USB_CONNECT_OFF() PIN_USB_CONNECT_PORT->BRR  = PIN_USB_CONNECT_MASK
-
-#elif  defined ( STLINK_V20 ) \
-  ||   defined ( STLINK_V2A ) \
-  ||   defined ( STLINK_V2B )
-
-#define PIN_USB_CONNECT_ON()
-#define PIN_USB_CONNECT_OFF()
-
-#elif defined ( STLINK_V21 )
+#if defined ( STLINK_V21 )
 
 #define PIN_USB_CONNECT_RCC   RCC_APB2ENR_IOPAEN
 #define PIN_USB_CONNECT_PORT  GPIOA
@@ -216,113 +188,19 @@ typedef enum Pin_e {
 #define PIN_USB_CONNECT_ON()  PIN_USB_CONNECT_PORT->BSRR = PIN_USB_CONNECT_MASK
 #define PIN_USB_CONNECT_OFF() PIN_USB_CONNECT_PORT->BRR  = PIN_USB_CONNECT_MASK
 
-#elif defined ( BOARD_STM32RF )
+#elif defined ( STLINK_V2B )
 
-// USB Connect Pull-Up
-#define PIN_USB_CONNECT_RCC   RCC_APB2ENR_IOPBEN
-#define PIN_USB_CONNECT_PORT  GPIOB
-#define PIN_USB_CONNECT_PIN   5
+#define PIN_USB_CONNECT_RCC   RCC_APB2ENR_IOPAEN
+#define PIN_USB_CONNECT_PORT  GPIOA
+#define PIN_USB_CONNECT_PIN   15
 #define PIN_USB_CONNECT_MASK  PIN_MASK(PIN_USB_CONNECT_PIN)
-#define PIN_USB_MODE          GPIO_Mode_Out_PP
+#define PIN_USB_MODE          GPIO_Mode_Out_OD
 #define PIN_USB_CONNECT_ON()  PIN_USB_CONNECT_PORT->BSRR = PIN_USB_CONNECT_MASK
 #define PIN_USB_CONNECT_OFF() PIN_USB_CONNECT_PORT->BRR  = PIN_USB_CONNECT_MASK
+
 #endif
 
-#if defined ( BLUEPILL )              //New STM32F103C8T6 - Bluepill Board
-
-#if defined ( SWD_REMAP )             //remap SWDIO/SWCLK to PA13/PA14
-
-// TDI Pin (output)
-#define PIN_TDI_PORT        GPIOB
-#define PIN_TDI_PIN         5
-
-// SWDIO/TMS Pin
-#define PIN_SWDIO_TMS_PORT  GPIOA   //remapped
-#define PIN_SWDIO_TMS_PIN   13
-
-// SWCLK/TCK Pin
-#define PIN_SWCLK_TCK_PORT  GPIOA   //remapped
-#define PIN_SWCLK_TCK_PIN   14
-
-// TDO/SWO Pin (input)              //remap USART1_Rx_Pin to PB7 for SWO
-#define PIN_TDO_PORT        GPIOB
-#define PIN_TDO_PIN         7
-
-// nRESET Pin
-#define PIN_nRESET_PORT     GPIOB
-#define PIN_nRESET_PIN      6
-
-#else //#if defined ( SWD_REMAP )
-
-// TDI Pin (output)
-#define PIN_TDI_PORT        GPIOB
-#define PIN_TDI_PIN         5
-
-// SWDIO/TMS Pin
-#define PIN_SWDIO_TMS_PORT  GPIOB
-#define PIN_SWDIO_TMS_PIN   9
-
-// SWCLK/TCK Pin
-#define PIN_SWCLK_TCK_PORT  GPIOB
-#define PIN_SWCLK_TCK_PIN   8
-
-// TDO/SWO Pin (input)              //remap USART1_Rx_Pin to PB7 for SWO
-#define PIN_TDO_PORT        GPIOB
-#define PIN_TDO_PIN         7
-
-// nRESET Pin
-#define PIN_nRESET_PORT     GPIOB
-#define PIN_nRESET_PIN      6
-
-#endif //#if defined ( SWD_REMAP )
-
-#elif defined ( BOARD_V1 )
-
-// SWDIO/TMS Pin
-#define PIN_SWDIO_TMS_PORT  GPIOA
-#define PIN_SWDIO_TMS_PIN   2         //PA2 conflict with USART2
-#error "PA2 conflict with USART2, Please remove USART-CDC function or change PIN_SWDIO_TMS_PIN!!!!"
-
-// SWCLK/TCK Pin
-#define PIN_SWCLK_TCK_PORT  GPIOA
-#define PIN_SWCLK_TCK_PIN   4
-
-// TDO/SWO Pin (input)
-#define PIN_TDO_PORT        GPIOA
-#define PIN_TDO_PIN         5
-
-// TDI Pin (output)
-#define PIN_TDI_PORT        GPIOA
-#define PIN_TDI_PIN         7
-
-// nRESET Pin
-#define PIN_nRESET_PORT     GPIOA
-#define PIN_nRESET_PIN      6
-
-#elif defined ( BOARD_V2 )
-
-// SWDIO/TMS Pin
-#define PIN_SWDIO_TMS_PORT  GPIOA
-#define PIN_SWDIO_TMS_PIN   4
-
-// SWCLK/TCK Pin
-#define PIN_SWCLK_TCK_PORT  GPIOA
-#define PIN_SWCLK_TCK_PIN   5
-
-// TDO/SWO Pin (input)
-#define PIN_TDO_PORT        GPIOA
-#define PIN_TDO_PIN         6
-
-// TDI Pin (output)
-#define PIN_TDI_PORT        GPIOA
-#define PIN_TDI_PIN         7
-
-// nRESET Pin
-#define PIN_nRESET_PORT     GPIOB
-#define PIN_nRESET_PIN      9
-
-#elif defined ( STLINK_V20 ) \
-   || defined ( STLINK_V21 )
+#if defined ( STLINK_V21 )
 
 // SWDIO/TMS Pin
 #define PIN_SWDIO_TMS_PORT  GPIOB
@@ -340,27 +218,7 @@ typedef enum Pin_e {
 #define PIN_nRESET_PORT     GPIOB
 #define PIN_nRESET_PIN      0
 
-#elif defined ( BOARD_STM32RF )
-
-// SWDIO/TMS Pin
-#define PIN_SWDIO_TMS_PORT  GPIOA
-#define PIN_SWDIO_TMS_PIN   6
-
-// SWCLK/TCK Pin
-#define PIN_SWCLK_TCK_PORT  GPIOA
-#define PIN_SWCLK_TCK_PIN   7
-
-// TDO/SWO Pin (input)
-
-#define PIN_TDO_PORT        GPIOB
-#define PIN_TDO_PIN         7
-
-// nRESET Pin
-#define PIN_nRESET_PORT     GPIOB
-#define PIN_nRESET_PIN      9
-
-#elif defined ( STLINK_V2A ) \
-  ||  defined ( STLINK_V2B )
+#elif defined ( STLINK_V2B )
 
 // SWDIO/TMS Pin
 #define PIN_SWDIO_TMS_PORT  GPIOB
@@ -385,46 +243,9 @@ typedef enum Pin_e {
 #endif
 
 // Debug Unit LEDs
-#if defined ( BLUEPILL )
 
-#define LED_CONNECTED_RCC   RCC_APB2ENR_IOPCEN //PC13 - Bluepill
-#define LED_CONNECTED_PORT  GPIOC
-#define LED_CONNECTED_PIN   13
 
-#define LED_RUNNING_RCC     RCC_APB2ENR_IOPCEN //PC13 - Bluepill
-#define LED_RUNNING_PORT    GPIOC
-#define LED_RUNNING_PIN     13
-
-#elif defined ( BOARD_V1 ) || defined ( BOARD_V2 )
-
-#define LED_CONNECTED_RCC   RCC_APB2ENR_IOPBEN
-#define LED_RUNNING_RCC     RCC_APB2ENR_IOPBEN
-
-// Connected LED (GREEN)
-#define LED_CONNECTED_PORT  GPIOB
-#define LED_CONNECTED_PIN   13
-
-// Target Running LED (RED)
-#define LED_RUNNING_PORT    GPIOB
-#define LED_RUNNING_PIN     12
-
-#elif defined ( STLINK_V20 ) \
-  ||  defined ( STLINK_V2A ) \
-  ||  defined ( STLINK_V2B )
-
-#define LED_CONNECTED_RCC   RCC_APB2ENR_IOPAEN
-#define LED_RUNNING_RCC     RCC_APB2ENR_IOPAEN
-
-// Connected LED (GREEN)  0
-// Target Running LED (RED) 1
-// Off - float
-#define LED_CONNECTED_PORT  GPIOA
-#define LED_CONNECTED_PIN   9
-
-#define LED_RUNNING_PORT    GPIOA
-#define LED_RUNNING_PIN     9
-
-#elif defined ( STLINK_V21 )
+#if defined ( STLINK_V21 )
 // Connected LED (GREEN)  0
 // Target Running LED (RED) 1
 // Off - float
@@ -440,21 +261,22 @@ typedef enum Pin_e {
 #define LED_RUNNING_MODE  GPIO_Mode_Out_PP
 #define LED_RUNNING_SPEED GPIO_Speed_50MHz
 
-//  #define LED_CONNECTED_MASK  PIN_MASK(LED_CONNECTED_PIN)
-//  #define LED_RUNNING_MASK    PIN_MASK(LED_RUNNING_PIN)
+#elif defined ( STLINK_V2B )
 
-#elif defined ( BOARD_STM32RF )
+// Connected LED (GREEN)  0
+// Target Running LED (RED) 1
+// Off - float
+#define LED_CONNECTED_RCC   RCC_APB2ENR_IOPAEN
+#define LED_CONNECTED_PORT  GPIOA
+#define LED_CONNECTED_PIN   GPIO_Pin_9
+#define LED_CONNECTED_MODE  GPIO_Mode_Out_PP
+#define LED_CONNECTED_SPEED GPIO_Speed_50MHz
 
-#define LED_CONNECTED_RCC   RCC_APB2ENR_IOPBEN
-#define LED_RUNNING_RCC     RCC_APB2ENR_IOPBEN
-
-// Connected LED (GREEN)
-#define LED_CONNECTED_PORT  GPIOB
-#define LED_CONNECTED_PIN   11
-
-// Target Running LED (RED)
-#define LED_RUNNING_PORT    GPIOB
-#define LED_RUNNING_PIN     12
+#define LED_RUNNING_RCC   RCC_APB2ENR_IOPAEN
+#define LED_RUNNING_PORT  GPIOA
+#define LED_RUNNING_PIN   GPIO_Pin_9
+#define LED_RUNNING_MODE  GPIO_Mode_Out_PP
+#define LED_RUNNING_SPEED GPIO_Speed_50MHz
 
 #endif
 
