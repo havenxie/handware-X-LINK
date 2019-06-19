@@ -1,4 +1,4 @@
-STM32 ST-LINK Utility用于升级STlink固件、向目标板下载代码。
+ST-LinkUpgrade.exe用于升级STlink固件。
 STLinkReflash 用于刷成JLINK
 
 以下两个数据流请结合文档：https://www.brobwind.com/archives/1133  分析
